@@ -1,42 +1,65 @@
+
 services:
   db:
-    image: postgres:16
-    container_name: indifusion_postgres_db
+    image: postgres:13
+    container_name: indi_postgres_db
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_DATABASE}
     volumes:
-      - indifusion_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
-      - internal
+      - backend
 
   adminer:
     image: adminer
-    container_name: indifusion_adminer
+    container_name: indi_adminer
     depends_on:
       - db
     ports:
       - "8080:8080"
     networks:
-      - internal
+      - backend
 
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
-    container_name: indifusion_adonis_api
+    container_name: indi_adonis_api
     environment:
       NODE_ENV: development
+      DB_CONNECTION: pg
       DB_HOST: db
       DB_PORT: 5432
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_DATABASE: ${DB_DATABASE}
-    depends_on:
-      - db
+      HOST: 0.0.0.0
+      PORT: 3333
     networks:
-      - internal
+      - backend
+      - frontend
+    ports:
+      - "3333:3333"
+
+  web:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    container_name: indi_react_frontend
+    environment:
+      - REACT_APP_API_URL=http://indi_adonis_api:3333
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    networks:
+      - frontend
 
 volumes:
-  indifusion_data:
+  postgres_data:
+
+networks:
+  frontend:
+  backend:
