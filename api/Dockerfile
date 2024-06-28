@@ -1,5 +1,3 @@
-# Dockerfile
-
 # Utiliser une image node comme base
 FROM node:21.6.2
 
@@ -18,5 +16,5 @@ COPY . .
 # Exposer le port de l'application
 EXPOSE 3333
 
-# Commande pour démarrer l'application
-CMD ["node", "ace", "serve", "--watch"]
+# Exécuter les migrations puis démarrer l'application en mode développement
+CMD ["sh", "-c", "node ace migration:run && npm run dev"]
