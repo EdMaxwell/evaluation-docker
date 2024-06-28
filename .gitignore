@@ -29,3 +29,6 @@ api/tmp/
 front/node_modules/
 front/build/
 front/.env
+
+
+.idea
